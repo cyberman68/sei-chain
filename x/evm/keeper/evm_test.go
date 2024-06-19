@@ -60,13 +60,15 @@ func TestInternalCall(t *testing.T) {
 		Data:   contractData,
 	}
 	ctx = ctx.WithIsEVM(false)
-	_, ret, err := k.HandleInternalEVMCall(ctx, req)
+	resCtx, ret, err := k.HandleInternalEVMCall(ctx, req)
 	require.Nil(t, err)
 	contractAddr := crypto.CreateAddress(senderEvmAddr, 0)
 	require.NotEmpty(t, k.GetCode(ctx, contractAddr))
 	require.Equal(t, ret.Data, k.GetCode(ctx, contractAddr))
 	k.SetERC20NativePointer(ctx, "test", contractAddr)
 
+	ctx = resCtx
+	require.NotNil(t, types.GetCtxEVM(ctx))
 	receiverAddr, evmAddr := testkeeper.MockAddressPair()
 	k.SetAddressMapping(ctx, receiverAddr, evmAddr)
 	args, err = abi.Pack("transfer", evmAddr, big.NewInt(1000))
@@ -80,9 +82,9 @@ func TestInternalCall(t *testing.T) {
 		Data:   args,
 		Value:  &val,
 	}
-	_, _, err = k.HandleInternalEVMCall(ctx, req)
+	resCtx, _, err = k.HandleInternalEVMCall(ctx, req)
 	require.Nil(t, err)
-	require.Equal(t, int64(1000), testkeeper.EVMTestApp.BankKeeper.GetBalance(ctx, receiverAddr, "test").Amount.Int64())
+	require.Equal(t, int64(1000), testkeeper.EVMTestApp.BankKeeper.GetBalance(resCtx, receiverAddr, "test").Amount.Int64())
 }
 
 func TestStaticCall(t *testing.T) {

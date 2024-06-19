@@ -134,7 +134,7 @@ func (k *Keeper) CallEVM(ctx sdk.Context, from common.Address, to *common.Addres
 	}
 	k.AppendToEvmTxDeferredInfo(ctx, ethtypes.Bloom{}, ethtypes.EmptyTxsHash, surplus)
 	ctx.EVMEventManager().EmitEvents(stateDB.GetAllLogs())
-	return ctx, res.ReturnData, nil
+	return stateDB.Ctx(), res.ReturnData, nil
 }
 
 func (k *Keeper) StaticCallEVM(ctx sdk.Context, from sdk.AccAddress, to *common.Address, data []byte) ([]byte, error) {

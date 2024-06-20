@@ -38,7 +38,7 @@ func (k *Keeper) RunWithOneOffEVMInstance(
 		return err
 	}
 	if !surplus.IsZero() {
-		logger("non-zero surplus", err.Error())
+		logger("non-zero surplus", surplus.String())
 	}
 	return nil
 }
